@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>決算書作成スプレッドシート</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .tabs {
+            display: flex;
+            background-color: #2c3e50;
+        }
+        .tab {
+            padding: 15px 25px;
+            background-color: #34495e;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .tab.active {
+            background-color: #3498db;
+        }
+        .tab:hover {
+            background-color: #2980b9;
+        }
+        .sheet {
+            display: none;
+            padding: 30px;
+        }
+        .sheet.active {
+            display: block;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .number {
+            text-align: right;
+        }
+        input, select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .add-row {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .add-row:hover {
+            background-color: #229954;
+        }
+        .calculate {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .calculate:hover {
+            background-color: #2980b9;
+        }
+        .total-row {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+        .instructions {
+            background-color: #e8f4fd;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .warning {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showSheet('transactions')">取引入力</button>
+            <button class="tab" onclick="showSheet('trial')">試算表</button>
+            <button class="tab" onclick="showSheet('pl')">損益計算書</button>
+            <button class="tab" onclick="showSheet('bs')">貸借対照表</button>
+        </div>
+
+        <!-- 取引入力シート -->
+        <div id="transactions" class="sheet active">
+            <h2>取引入力シート</h2>
+            <div class="instructions">
+                <strong>使い方：</strong>
+                <ol>
+                    <li>銀行口座の取引データを下の表に入力してください</li>
+                    <li>各取引に適切な勘定科目を選択してください</li>
+                    <li>事業用の取引のみチェックを入れてください</li>
+                    <li>入力後、「計算実行」ボタンを押してください</li>
+                </ol>
+                <div style="background-color: #fff3cd; padding: 10px; border-radius: 4px; margin-top: 10px; border-left: 4px solid #ffc107;">
+                    <strong>借入金返済について：</strong><br>
+                    • <strong>借入時</strong>：勘定科目「借入金（借入時）」を選択、入金額に金額を入力<br>
+                    • <strong>返済時（元本）</strong>：勘定科目「借入金返済（元本）」を選択、出金額に元本返済額を入力<br>
+                    • <strong>返済時（利息）</strong>：勘定科目「支払利息」を選択、出金額に利息分を入力<br>
+                    ※ 元本返済と利息支払いは別々の行で入力してください
+                </div>
+            </div>
+            
+            <button class="add-row" onclick="addTransactionRow()">行を追加</button>
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>摘要</th>
+                        <th>入金額</th>
+                        <th>出金額</th>
+                        <th>勘定科目</th>
+                        <th>事業用</th>
+                        <th>削除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="date" class="date"></td>
+                        <td><input type="text" class="description" placeholder="取引内容"></td>
+                        <td><input type="number" class="credit" placeholder="0"></td>
+                        <td><input type="number" class="debit" placeholder="0"></td>
+                        <td>
+                            <select class="account">
+                                <option value="">選択してください</option>
+                                <option value="売上高">売上高</option>
+                                <option value="受取利息">受取利息</option>
+                                <option value="雑収入">雑収入</option>
+                                <option value="仕入高">仕入高</option>
+                                <option value="給料手当">給料手当</option>
+                                <option value="地代家賃">地代家賃</option>
+                                <option value="水道光熱費">水道光熱費</option>
+                                <option value="通信費">通信費</option>
+                                <option value="消耗品費">消耗品費</option>
+                                <option value="旅費交通費">旅費交通費</option>
+                                <option value="支払利息">支払利息</option>
+                                <option value="雑費">雑費</option>
+                                <option value="法人税等">法人税等</option>
+                                <option value="所得税">所得税</option>
+                                <option value="消費税">消費税</option>
+                                <option value="売掛金">売掛金</option>
+                                <option value="買掛金">買掛金</option>
+                                <option value="借入金">借入金（借入時）</option>
+                                <option value="借入金返済">借入金返済（元本）</option>
+                                <option value="未払税金">未払税金</option>
+                                <option value="元入金">元入金</option>
+                            </select>
+                        </td>
+                        <td><input type="checkbox" class="business"></td>
+                        <td><button onclick="deleteRow(this)" style="background: #e74c3c; color: white; border: none; padding: 5px; border-radius: 3px;">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="calculate" onclick="calculateAll()">計算実行</button>
+        </div>
+
+        <!-- 試算表シート -->
+        <div id="trial" class="sheet">
+            <h2>試算表</h2>
+            <div class="warning">
+                <strong>注意：</strong> 取引入力シートで「計算実行」を押してから確認してください。
+            </div>
+            <table id="trialBalanceTable">
+                <thead>
+                    <tr>
+                        <th>勘定科目</th>
+                        <th>借方合計</th>
+                        <th>貸方合計</th>
+                        <th>差額（借方）</th>
+                        <th>差額（貸方）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 損益計算書シート -->
+        <div id="pl" class="sheet">
+            <h2>損益計算書</h2>
+            <div class="warning">
+                <strong>注意：</strong> 取引入力シートで「計算実行」を押してから確認してください。
+            </div>
+            
+            <h3>収益の部</h3>
+            <table id="revenueTable">
+                <thead>
+                    <tr>
+                        <th>科目</th>
+                        <th>金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>費用の部</h3>
+            <table id="expenseTable">
+                <thead>
+                    <tr>
+                        <th>科目</th>
+                        <th>金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>税金・損益</h3>
+            <table>
+                <tr>
+                    <td>税引前当期純利益</td>
+                    <td class="number" id="pretaxIncome">0</td>
+                </tr>
+                <tr id="taxRow" style="display: none;">
+                    <td>法人税等</td>
+                    <td class="number" id="taxAmount">0</td>
+                </tr>
+                <tr>
+                    <td><strong>当期純利益（税引後）</strong></td>
+                    <td class="number"><strong id="netIncome">0</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-top: 15px;">
+                        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 12px;">
+                            <strong>税金について：</strong><br>
+                            • 法人の場合：税引前利益に約30%の法人税等がかかります<br>
+                            • 個人事業主の場合：所得税・住民税・事業税等の計算が必要です<br>
+                            • 正確な税額は税理士にご相談ください
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 貸借対照表シート -->
+        <div id="bs" class="sheet">
+            <h2>貸借対照表</h2>
+            <div class="warning">
+                <strong>注意：</strong> 取引入力シートで「計算実行」を押してから確認してください。
+            </div>
+
+            <div style="display: flex; gap: 40px;">
+                <div style="flex: 1;">
+                    <h3>資産の部</h3>
+                    <table id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>科目</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="flex: 1;">
+                    <h3>負債・純資産の部</h3>
+                    <table id="liabilitiesTable">
+                        <thead>
+                            <tr>
+                                <th>科目</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let transactions = [];
+        let trialBalance = {};
+
+        // 勘定科目の分類
+        const accountTypes = {
+            '売上高': 'revenue',
+            '受取利息': 'revenue',
+            '雑収入': 'revenue',
+            '仕入高': 'expense',
+            '給料手当': 'expense',
+            '地代家賃': 'expense',
+            '水道光熱費': 'expense',
+            '通信費': 'expense',
+            '消耗品費': 'expense',
+            '旅費交通費': 'expense',
+            '支払利息': 'expense',
+            '雑費': 'expense',
+            '法人税等': 'tax_expense',
+            '所得税': 'tax_expense',
+            '消費税': 'tax_expense',
+            '現金預金': 'asset',
+            '売掛金': 'asset',
+            '買掛金': 'liability',
+            '借入金': 'liability',
+            '借入金返済': 'liability_repayment',
+            '未払税金': 'liability',
+            '元入金': 'equity'
+        };
+
+        // タブ切り替え
+        function showSheet(sheetName) {
+            // すべてのシートを非表示
+            document.querySelectorAll('.sheet').forEach(sheet => {
+                sheet.classList.remove('active');
+            });
+            // すべてのタブを非アクティブ
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 選択されたシートとタブをアクティブに
+            document.getElementById(sheetName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 取引行を追加
+        function addTransactionRow() {
+            const tbody = document.querySelector('#transactionTable tbody');
+            const newRow = tbody.rows[0].cloneNode(true);
+            
+            // 入力値をクリア
+            newRow.querySelectorAll('input').forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            newRow.querySelector('select').selectedIndex = 0;
+            
+            tbody.appendChild(newRow);
+        }
+
+        // 行を削除
+        function deleteRow(button) {
+            const tbody = document.querySelector('#transactionTable tbody');
+            if (tbody.rows.length > 1) {
+                button.closest('tr').remove();
+            }
+        }
+
+        // すべての計算を実行
+        function calculateAll() {
+            collectTransactions();
+            calculateTrialBalance();
+            generateFinancialStatements();
+            alert('計算が完了しました。各シートで結果を確認してください。');
+        }
+
+        // 取引データを収集
+        function collectTransactions() {
+            transactions = [];
+            const rows = document.querySelectorAll('#transactionTable tbody tr');
+            
+            rows.forEach(row => {
+                const date = row.querySelector('.date').value;
+                const description = row.querySelector('.description').value;
+                const credit = parseFloat(row.querySelector('.credit').value) || 0;
+                const debit = parseFloat(row.querySelector('.debit').value) || 0;
+                const account = row.querySelector('.account').value;
+                const isBusiness = row.querySelector('.business').checked;
+                
+                if (date && account && isBusiness && (credit > 0 || debit > 0)) {
+                    transactions.push({
+                        date,
+                        description,
+                        credit,
+                        debit,
+                        account
+                    });
+                }
+            });
+        }
+
+        // 試算表を計算
+        function calculateTrialBalance() {
+            trialBalance = {};
+            
+            transactions.forEach(transaction => {
+                if (!trialBalance[transaction.account]) {
+                    trialBalance[transaction.account] = {
+                        debit: 0,
+                        credit: 0
+                    };
+                }
+                
+                trialBalance[transaction.account].debit += transaction.debit;
+                trialBalance[transaction.account].credit += transaction.credit;
+            });
+
+            // 借入金返済の処理：元本返済分を借入金から減額
+            if (trialBalance['借入金返済']) {
+                const repaymentAmount = trialBalance['借入金返済'].debit - trialBalance['借入金返済'].credit;
+                if (repaymentAmount > 0) {
+                    if (!trialBalance['借入金']) {
+                        trialBalance['借入金'] = { debit: 0, credit: 0 };
+                    }
+                    // 借入金残高から元本返済分を減額
+                    trialBalance['借入金'].debit += repaymentAmount;
+                }
+                // 借入金返済勘定は表示から除外
+                delete trialBalance['借入金返済'];
+            }
+
+            // 現金預金の計算（銀行残高の変動）
+            let cashBalance = 0;
+            transactions.forEach(transaction => {
+                cashBalance += transaction.credit - transaction.debit;
+            });
+            
+            if (cashBalance !== 0) {
+                if (!trialBalance['現金預金']) {
+                    trialBalance['現金預金'] = { debit: 0, credit: 0 };
+                }
+                if (cashBalance > 0) {
+                    trialBalance['現金預金'].debit += cashBalance;
+                } else {
+                    trialBalance['現金預金'].credit += Math.abs(cashBalance);
+                }
+            }
+
+            displayTrialBalance();
+        }
+
+        // 試算表を表示
+        function displayTrialBalance() {
+            const tbody = document.querySelector('#trialBalanceTable tbody');
+            tbody.innerHTML = '';
+            
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                const row = tbody.insertRow();
+                const debitBalance = balance.debit - balance.credit;
+                const creditBalance = balance.credit - balance.debit;
+                
+                row.innerHTML = `
+                    <td>${account}</td>
+                    <td class="number">${balance.debit.toLocaleString()}</td>
+                    <td class="number">${balance.credit.toLocaleString()}</td>
+                    <td class="number">${debitBalance > 0 ? debitBalance.toLocaleString() : ''}</td>
+                    <td class="number">${creditBalance > 0 ? creditBalance.toLocaleString() : ''}</td>
+                `;
+                
+                totalDebit += balance.debit;
+                totalCredit += balance.credit;
+            });
+            
+            // 合計行を追加
+            const totalRow = tbody.insertRow();
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td><strong>合計</strong></td>
+                <td class="number"><strong>${totalDebit.toLocaleString()}</strong></td>
+                <td class="number"><strong>${totalCredit.toLocaleString()}</strong></td>
+                <td></td>
+                <td></td>
+            `;
+        }
+
+        // 決算書を生成
+        function generateFinancialStatements() {
+            generatePL();
+            generateBS();
+        }
+
+        // 損益計算書を生成
+        function generatePL() {
+            const revenueBody = document.querySelector('#revenueTable tbody');
+            const expenseBody = document.querySelector('#expenseTable tbody');
+            
+            revenueBody.innerHTML = '';
+            expenseBody.innerHTML = '';
+            
+            let totalRevenue = 0;
+            let totalExpense = 0;
+            let totalTaxExpense = 0;
+            
+            // 収益の計算
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'revenue') {
+                    const amount = balance.credit - balance.debit;
+                    if (amount > 0) {
+                        const row = revenueBody.insertRow();
+                        row.innerHTML = `
+                            <td>${account}</td>
+                            <td class="number">${amount.toLocaleString()}</td>
+                        `;
+                        totalRevenue += amount;
+                    }
+                }
+            });
+            
+            // 費用の計算（税金以外）
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'expense') {
+                    const amount = balance.debit - balance.credit;
+                    if (amount > 0) {
+                        const row = expenseBody.insertRow();
+                        row.innerHTML = `
+                            <td>${account}</td>
+                            <td class="number">${amount.toLocaleString()}</td>
+                        `;
+                        totalExpense += amount;
+                    }
+                }
+            });
+            
+            // 税金費用の計算
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'tax_expense') {
+                    const amount = balance.debit - balance.credit;
+                    if (amount > 0) {
+                        totalTaxExpense += amount;
+                    }
+                }
+            });
+            
+            // 収益合計行
+            const revenueTotalRow = revenueBody.insertRow();
+            revenueTotalRow.className = 'total-row';
+            revenueTotalRow.innerHTML = `
+                <td><strong>収益合計</strong></td>
+                <td class="number"><strong>${totalRevenue.toLocaleString()}</strong></td>
+            `;
+            
+            // 費用合計行
+            const expenseTotalRow = expenseBody.insertRow();
+            expenseTotalRow.className = 'total-row';
+            expenseTotalRow.innerHTML = `
+                <td><strong>費用合計</strong></td>
+                <td class="number"><strong>${totalExpense.toLocaleString()}</strong></td>
+            `;
+            
+            // 税引前当期純利益
+            const pretaxIncome = totalRevenue - totalExpense;
+            document.getElementById('pretaxIncome').textContent = pretaxIncome.toLocaleString();
+            document.getElementById('pretaxIncome').style.color = pretaxIncome >= 0 ? 'green' : 'red';
+            
+            // 税金の表示
+            if (totalTaxExpense > 0) {
+                document.getElementById('taxRow').style.display = 'table-row';
+                document.getElementById('taxAmount').textContent = totalTaxExpense.toLocaleString();
+            } else {
+                document.getElementById('taxRow').style.display = 'none';
+            }
+            
+            // 税引後当期純利益
+            const netIncome = pretaxIncome - totalTaxExpense;
+            document.getElementById('netIncome').textContent = netIncome.toLocaleString();
+            document.getElementById('netIncome').style.color = netIncome >= 0 ? 'green' : 'red';
+        }
+
+        // 貸借対照表を生成
+        function generateBS() {
+            const assetsBody = document.querySelector('#assetsTable tbody');
+            const liabilitiesBody = document.querySelector('#liabilitiesTable tbody');
+            
+            assetsBody.innerHTML = '';
+            liabilitiesBody.innerHTML = '';
+            
+            let totalAssets = 0;
+            let totalLiabilities = 0;
+            let totalEquity = 0;
+            
+            // 資産の計算
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'asset') {
+                    const amount = balance.debit - balance.credit;
+                    if (amount !== 0) {
+                        const row = assetsBody.insertRow();
+                        row.innerHTML = `
+                            <td>${account}</td>
+                            <td class="number">${Math.abs(amount).toLocaleString()}</td>
+                        `;
+                        totalAssets += Math.abs(amount);
+                    }
+                }
+            });
+            
+            // 負債の計算
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'liability') {
+                    const amount = balance.credit - balance.debit;
+                    if (amount > 0) {
+                        const row = liabilitiesBody.insertRow();
+                        row.innerHTML = `
+                            <td>${account}</td>
+                            <td class="number">${amount.toLocaleString()}</td>
+                        `;
+                        totalLiabilities += amount;
+                    }
+                }
+            });
+            
+            // 純資産の計算
+            Object.entries(trialBalance).forEach(([account, balance]) => {
+                if (accountTypes[account] === 'equity') {
+                    const amount = balance.credit - balance.debit;
+                    if (amount > 0) {
+                        const row = liabilitiesBody.insertRow();
+                        row.innerHTML = `
+                            <td>${account}</td>
+                            <td class="number">${amount.toLocaleString()}</td>
+                        `;
+                        totalEquity += amount;
+                    }
+                }
+            });
+            
+            // 当期純利益を純資産に追加
+            const netIncomeElement = document.getElementById('netIncome');
+            const netIncome = parseFloat(netIncomeElement.textContent.replace(/,/g, '')) || 0;
+            if (netIncome !== 0) {
+                const row = liabilitiesBody.insertRow();
+                row.innerHTML = `
+                    <td>当期純利益</td>
+                    <td class="number">${netIncome.toLocaleString()}</td>
+                `;
+                totalEquity += netIncome;
+            }
+            
+            // 合計行
+            const assetsTotalRow = assetsBody.insertRow();
+            assetsTotalRow.className = 'total-row';
+            assetsTotalRow.innerHTML = `
+                <td><strong>資産合計</strong></td>
+                <td class="number"><strong>${totalAssets.toLocaleString()}</strong></td>
+            `;
+            
+            const liabilitiesTotalRow = liabilitiesBody.insertRow();
+            liabilitiesTotalRow.className = 'total-row';
+            liabilitiesTotalRow.innerHTML = `
+                <td><strong>負債・純資産合計</strong></td>
+                <td class="number"><strong>${(totalLiabilities + totalEquity).toLocaleString()}</strong></td>
+            `;
+        }
+
+        // ページ読み込み時にサンプルデータを追加
+        window.onload = function() {
+            // サンプル取引を追加
+            addTransactionRow();
+            const rows = document.querySelectorAll('#transactionTable tbody tr');
+            
+            // サンプルデータ1
+            rows[0].querySelector('.date').value = '2024-01-15';
+            rows[0].querySelector('.description').value = '売上入金';
+            rows[0].querySelector('.credit').value = '100000';
+            rows[0].querySelector('.account').value = '売上高';
+            rows[0].querySelector('.business').checked = true;
+            
+            // サンプルデータ2
+            rows[1].querySelector('.date').value = '2024-01-20';
+            rows[1].querySelector('.description').value = '事務所家賃';
+            rows[1].querySelector('.debit').value = '50000';
+            rows[1].querySelector('.account').value = '地代家賃';
+            rows[1].querySelector('.business').checked = true;
+        };
+    </script>
+</body>
+</html>

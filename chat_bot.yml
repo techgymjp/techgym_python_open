@@ -1,0 +1,674 @@
+app:
+  description: Dify講座用に制作したアプリです。
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: udemy-テックジムのチャットボット
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.0.11@390c87cc0f17370a70d3b214cd71a8de81fe9d6b52e6a38287acde034138b672
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: question-classifier
+        targetType: code
+      id: 1739284487784-2-1739284505764-target
+      selected: false
+      source: '1739284487784'
+      sourceHandle: '2'
+      target: '1739284505764'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: answer
+      id: 1739286297063-false-answer-target
+      selected: false
+      source: '1739286297063'
+      sourceHandle: 'false'
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: answer
+      id: 1739284505764-source-1739284498867-target
+      selected: false
+      source: '1739284505764'
+      sourceHandle: source
+      target: '1739284498867'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1739286297063-true-1739283045971-target
+      selected: false
+      source: '1739286297063'
+      sourceHandle: 'true'
+      target: '1739283045971'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: answer
+      id: 1739283045971-source-1739284338072-target
+      selected: false
+      source: '1739283045971'
+      sourceHandle: source
+      target: '1739284338072'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: question-classifier
+      id: 1739280377346-source-1739284487784-target
+      selected: false
+      source: '1739280377346'
+      sourceHandle: source
+      target: '1739284487784'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1739284487784-1-1739530240931-target
+      selected: false
+      source: '1739284487784'
+      sourceHandle: '1'
+      target: '1739530240931'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1739530240931-source-llm-target
+      selected: false
+      source: '1739530240931'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: if-else
+      id: llm-source-1739530513253-target
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: '1739530513253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1739530513253-true-1739280589362-target
+      selected: false
+      source: '1739530513253'
+      sourceHandle: 'true'
+      target: '1739280589362'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: answer
+      id: 1739530513253-false-1739530749873-target
+      source: '1739530513253'
+      sourceHandle: 'false'
+      target: '1739530749873'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: llm
+      id: 1739280589362-source-1739530786233-target
+      source: '1739280589362'
+      sourceHandle: source
+      target: '1739530786233'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: if-else
+      id: 1739530786233-source-1739286297063-target
+      source: '1739530786233'
+      sourceHandle: source
+      target: '1739286297063'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables: []
+      height: 53
+      id: '1739280377346'
+      position:
+        x: 750.0809449645283
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 750.0809449645283
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739530240931'
+          - result
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 3
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 0d6fd02f-75e6-4119-99c0-f5f7bf7d9526
+          role: system
+          text: 'ユーザーからの質問に対して、情報をもとに回答を生成してください。もし近しい情報がない場合は「unanswerable」とだけ回答すること。　
+
+
+            情報
+
+            {{#context#}}'
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: llm
+      position:
+        x: 1046.8950060160985
+        y: 347.04731647655007
+      positionAbsolute:
+        x: 1046.8950060160985
+        y: 347.04731647655007
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        answer: '{{#1739530786233.text#}}'
+        desc: ''
+        selected: false
+        title: 回答
+        type: answer
+        variables: []
+      height: 104
+      id: answer
+      position:
+        x: 2212.0551952319747
+        y: 609.4486616537449
+      positionAbsolute:
+        x: 2212.0551952319747
+        y: 609.4486616537449
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        code: "import requests\n\ndef main() -> dict:\n    url = \"https://script.google.com/macros/s/AKfycbx55X2Ry4ywhUid1R_MrOTB_mkYLny04lTkhwxzDpAzejRe40mILJjJSAEnTGWsJfQu/exec\"\
+          \n    \n    try:\n        response = requests.get(url)\n        response.raise_for_status()\n\
+          \        data = response.json()\n        return {'result': str(data)}\n\
+          \    except requests.exceptions.RequestException:\n        return {'result':\
+          \ None}"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: スプレッドシートから情報取得
+        type: code
+        variables: []
+      height: 53
+      id: '1739280589362'
+      position:
+        x: 1631.6836915425356
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 1631.6836915425356
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        code: "import requests\nimport urllib.parse\nURL = \"https://script.google.com/macros/s/AKfycbx55X2Ry4ywhUid1R_MrOTB_mkYLny04lTkhwxzDpAzejRe40mILJjJSAEnTGWsJfQu/exec\"\
+          \ndef main(id: str, content: str):\n    data = {\n        \"action\": \"\
+          add_question\",\n        \"id\": id,\n        \"content\": urllib.parse.quote(content)\n\
+          \    }\n    try:\n        response = requests.post(URL, data=data)\n   \
+          \     response.raise_for_status()\n        return {'result': 'ok'}\n   \
+          \ except requests.exceptions.RequestException as e:\n        print(f\"Error\
+          \ posting question: {e}\")\n        return None"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 回答できなかった質問を記録
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - conversation_id
+          variable: id
+        - value_selector:
+          - sys
+          - query
+          variable: content
+      height: 53
+      id: '1739283045971'
+      position:
+        x: 2212.0551952319747
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 2212.0551952319747
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        answer: 'ご質問に関する情報が取得できませんでした。
+
+          ご質問の内容については記録させていただき、後日学習します。
+
+
+          回答の用意が出来次第、お客様にご連絡することも可能ですので、お名前とご連絡先を教えていただけますか？追加での質問もあればご記載ください。
+
+
+          連絡を希望しない場合も引き続きご質問いただけます。
+
+
+          （コピーの上お使いください）
+
+          お名前：
+
+          メールアドレス：
+
+          その他ご質問・ご要望など：'
+        desc: ''
+        selected: false
+        title: 回答 2
+        type: answer
+        variables: []
+      height: 277
+      id: '1739284338072'
+      position:
+        x: 2212.0551952319747
+        y: 275.4407625154072
+      positionAbsolute:
+        x: 2212.0551952319747
+        y: 275.4407625154072
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        classes:
+        - id: '1'
+          name: 質問
+        - id: '2'
+          name: ユーザーの連絡先に関する情報
+        desc: ''
+        instructions: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        query_variable_selector:
+        - '1739280377346'
+        - sys.query
+        selected: false
+        title: 質問かどうか分類
+        topics: []
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 171
+      id: '1739284487784'
+      position:
+        x: 750.0809449645283
+        y: 297.60729519228016
+      positionAbsolute:
+        x: 750.0809449645283
+        y: 297.60729519228016
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        answer: '連絡先をご教示いただきありがとうございました。
+
+          後日担当者よりご連絡いたしますので、しばらくお待ちください。
+
+
+          引き続き質問があればお伝えください。'
+        desc: ''
+        selected: false
+        title: 返答
+        type: answer
+        variables: []
+      height: 165
+      id: '1739284498867'
+      position:
+        x: 1342.1398014648446
+        y: 491.7071183576908
+      positionAbsolute:
+        x: 1342.1398014648446
+        y: 491.7071183576908
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        code: "import requests\nimport urllib.parse\nURL = \"https://script.google.com/macros/s/AKfycbx55X2Ry4ywhUid1R_MrOTB_mkYLny04lTkhwxzDpAzejRe40mILJjJSAEnTGWsJfQu/exec\"\
+          \ndef main(id: str, address: str):\n    data = {\n        \"action\": \"\
+          add_contact\",\n        \"id\": id,\n        \"address\": urllib.parse.quote(address)\n\
+          \    }\n    try:\n        response = requests.post(URL, data=data)\n   \
+          \     response.raise_for_status()\n        return {'result': 'ok'}\n   \
+          \ except requests.exceptions.RequestException as e:\n        print(f\"Error\
+          \ posting contact: {e}\")\n        return None"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 連絡先の追加
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - conversation_id
+          variable: id
+        - value_selector:
+          - sys
+          - query
+          variable: address
+      height: 53
+      id: '1739284505764'
+      position:
+        x: 1046.8950060160985
+        y: 491.7071183576908
+      positionAbsolute:
+        x: 1046.8950060160985
+        y: 491.7071183576908
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 399635ad-3805-4c3a-a582-261cd3319aa9
+            value: No Item
+            varType: string
+            variable_selector:
+            - '1739530786233'
+            - text
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE
+        type: if-else
+      height: 125
+      id: '1739286297063'
+      position:
+        x: 1922.6467080715329
+        y: 325.0905254879139
+      positionAbsolute:
+        x: 1922.6467080715329
+        y: 325.0905254879139
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        dataset_ids:
+        - XxMv5UYyUFPV2auBF3R9IPGrsaGIfsDVb37ftcclPgNvRzkdkF69rJ75HUsNjnNY
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: weighted_score
+          reranking_model:
+            model: ''
+            provider: ''
+          score_threshold: null
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: text-embedding-3-large
+              embedding_provider_name: langgenius/openai/openai
+              vector_weight: 0.7
+        query_variable_selector:
+        - '1739280377346'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知識取得
+        type: knowledge-retrieval
+      height: 91
+      id: '1739530240931'
+      position:
+        x: 1046.8950060160985
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 1046.8950060160985
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 4baa4561-1094-4dc5-97ca-33f20cb2b90c
+            value: unanswerable
+            varType: string
+            variable_selector:
+            - llm
+            - text
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE 2
+        type: if-else
+      height: 125
+      id: '1739530513253'
+      position:
+        x: 1342.1398014648446
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 1342.1398014648446
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: 回答 4
+        type: answer
+        variables: []
+      height: 104
+      id: '1739530749873'
+      position:
+        x: 1631.6836915425356
+        y: 275.4407625154072
+      positionAbsolute:
+        x: 1631.6836915425356
+        y: 275.4407625154072
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 163dfa4b-d4a0-40d9-bc31-ad234424e752
+          role: system
+          text: 'ユーザーからの質問に対して、以下のFAQリストをもとに回答を生成してください。もし当てはまる情報がない場合は「No Item」とだけ回答すること。　
+
+
+            FAQリスト
+
+            {{#1739280589362.result#}}'
+        - id: 34e820d3-fa23-478c-a3f7-e45d447a53b8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        title: LLM 2
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1739530786233'
+      position:
+        x: 1922.6467080715329
+        y: 202.00574104931894
+      positionAbsolute:
+        x: 1922.6467080715329
+        y: 202.00574104931894
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    viewport:
+      x: -623.9074262194733
+      y: -13.01811518137373
+      zoom: 0.8307422529795685
